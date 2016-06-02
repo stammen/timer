@@ -18,6 +18,7 @@
 #include <boost/io/ios_state.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/cerrno.hpp>
+#include <boost/predef/platform.h>
 #include <cstring>
 #include <sstream>
 #include <cassert>
@@ -121,6 +122,9 @@ namespace
     current.wall = x.count();
 
 # if defined(BOOST_WINDOWS_API)
+# if BOOST_PLAT_WINDOWS_RUNTIME 
+	current.system = current.user = boost::timer::nanosecond_type(-1);
+# else
 
     FILETIME creation, exit;
     if (::GetProcessTimes(::GetCurrentProcess(), &creation, &exit,
@@ -133,6 +137,7 @@ namespace
     {
       current.system = current.user = boost::timer::nanosecond_type(-1);
     }
+# endif
 # else
     tms tm;
     clock_t c = ::times(&tm);
